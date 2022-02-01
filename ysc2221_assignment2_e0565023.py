@@ -40,24 +40,15 @@ def read_rainbow_table(filename: str) -> "tuple[dict[str, int], str]":
     * At least one specific exception handling must be demonstrated
     * Simply catching a (Base)Exception will not earn full credit
     """
-    rainbow_dict = dict()
-
     try:
+        rainbow_dict = dict()
         with open(filename, "r") as file:
             for line in file:
-                try:
-                    hashed_value = line.replace("\n", "").split(" ")
-                    rainbow_dict[hashed_value[0]] = int(hashed_value[1])
-                except IndexError as e:
-                    return tuple((rainbow_dict, repr(e)))
-                except TypeError as e:
-                    return tuple((rainbow_dict, repr(e)))
-    except FileNotFoundError as e:
-        print(repr(e))
-        return None
-    except PermissionError as e:
-        print(repr(e))
-        return None
+                [hash_key, hash_value] = line.split()
+                rainbow_dict[hash_key] = int(hash_value)
+    except (FileNotFoundError, PermissionError, TypeError,
+            IndexError, OSError) as e:
+        return tuple((None, repr(e)))
     return tuple((rainbow_dict, ""))
 
 
@@ -96,32 +87,20 @@ def read_hashed_file(filename: str) -> \
     * At least one specific exception handling must be demonstrated
     * Simply catching a (Base)Exception will not earn full credit
     """
-    list_hash = list()
-
     try:
-        with open("hashed.txt", "r") as file:
-            try:
-                num_col_row = file.readline().replace("\n", " ").split(" ")
-                num_col = int(num_col_row[0])
-                num_row = int(num_col_row[1])
-                for row_number in range(num_row):
-                    list_col = list()
-                    for col_number in range(num_col):
-                        line = file.readline()
-                        hashed_pixel_data = line.replace("\n", "").split(" ")
-                        list_col.append(tuple(hashed_pixel_data))
-                    list_hash.append(list_col)
-            except IndexError as e:
-                return(None, 0, 0, repr(e))
-            except TypeError as e:
-                return(None, 0, 0, repr(e))
-    except FileNotFoundError as e:
-        print(repr(e))
-        return None
-    except PermissionError as e:
-        print(repr(e))
-        return None
-    return tuple([list_hash, num_col, num_row, ""])
+        with open(filename, "r") as file:
+            num_col_row = file.readline().replace("\n", " ").split(" ")
+            num_col, num_row = int(num_col_row[0]), int(num_col_row[1])
+            list_row = list()
+            for row_number in range(num_row):
+                list_col = list()
+                for col_number in range(num_col):
+                    list_col.append(tuple(file.readline().split()))
+                list_row.append(list_col)
+    except (FileNotFoundError, PermissionError, TypeError,
+            IndexError, OSError) as e:
+        return(None, 0, 0, repr(e))
+    return tuple([list_row, num_col, num_row, ""])
 
 
 def unhash_file(rainbow_table: "dict[str, int]",
@@ -141,19 +120,22 @@ def unhash_file(rainbow_table: "dict[str, int]",
         * Multi-dimensional list of hashed pixel data
             in rows x cols x 3 colour (RGB) integer values
     """
-    original_pixels = list()
-    for hashed_row in hash_content:
-        original_pixels_row = list()
-        for hashed_col in hashed_row:
-            original_pixels_col = list()
-            for hashed_pixel in hashed_col:
-                if rainbow_table.get(hashed_pixel) is None:
-                    print("Could not unhash the pixel")
-                    return None
-                original_pixels_col.append(rainbow_table.get(hashed_pixel))
-            original_pixels_row.append(tuple(original_pixels_col))
-        original_pixels.append(original_pixels_row)
-    return original_pixels
+    try:
+        original_pixels = list()
+        for hashed_row in hash_content:
+            original_pixels_row = list()
+            for hashed_col in hashed_row:
+                original_pixels_col = list()
+                for hashed_pixel in hashed_col:
+                    if rainbow_table.get(hashed_pixel) is None:
+                        print("Could not unhash the pixel")
+                        return None
+                    original_pixels_col.append(rainbow_table.get(hashed_pixel))
+                original_pixels_row.append(tuple(original_pixels_col))
+            original_pixels.append(original_pixels_row)
+        return original_pixels
+    except (IndexError, OSError):
+        return None
 
 
 def write_bytes_to_file(bytes_to_write: bytes, filename: str) -> str:
@@ -182,9 +164,8 @@ def write_bytes_to_file(bytes_to_write: bytes, filename: str) -> str:
     try:
         with open(filename, "wb") as file:
             file.write(bytes_to_write)
-    except FileNotFoundError as e:
-        return repr(e)
-    except PermissionError as e:
+    except (FileNotFoundError, PermissionError, TypeError,
+            IndexError, OSError) as e:
         return repr(e)
     return ""
 

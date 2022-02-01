@@ -21,6 +21,8 @@ def test_read_rainbow_table():
     assert dict["2144df1c"] == 0
     assert dict["99f8b879"] == 1
 
+    # self-defined
+
 
 def test_read_hashed_file():
 
