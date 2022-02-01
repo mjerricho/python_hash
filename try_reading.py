@@ -1,14 +1,50 @@
-# rainbow_dict = dict()
+def read_rainbow_table(filename: str) -> "tuple[dict[str, int], str]":
+    """
+    Opens the rainbow table file and provides a mapping of hash values
 
-# try:
-#     with open("rainbow-table.txt", "r") as file:
-#         for line in file:
-#             hashed_value = line.replace("\n", "").split(" ")
-#             hash = hashed_value[0]
-#             value = hashed_value[1]
-#             rainbow_dict[hash] = value
-# except FileNotFoundError as e:
-#     print(repr(e))
+    Parameters:
+    ----
+    filename<str>: Filepath to rainbow table
+
+    Return:
+    ----
+    tuple(table, status): Tuple of the following values
+
+    table <tuple[dict[str, int], str]>:
+        * Mapping of hashstrings to pixel colour value
+        * None if problems are encountered
+    status <str>:
+        * empty string "" if no problems encountered reading and processing
+        * custom message that best describes the problem
+
+    Implementation:
+    ----
+    * Function cannot crash on abnormal inputs like None, empty string etc
+    * Handle abnormal file conditions like missing file, no permissions etc
+    * Provided file can be assumed to always be in the correct format
+    * At least one specific exception handling must be demonstrated
+    * Simply catching a (Base)Exception will not earn full credit
+    """
+    rainbow_dict = dict()
+
+    try:
+        with open(filename, "r") as file:
+            for line in file:
+                try:
+                    hashed_value = line.replace("\n", "").split(" ")
+                    rainbow_dict[hashed_value[0]] = int(hashed_value[1])
+                except IndexError as e:
+                    return tuple((rainbow_dict, repr(e)))
+                except TypeError as e:
+                    return tuple((rainbow_dict, repr(e)))
+    except FileNotFoundError as e:
+        print(repr(e))
+        return None
+    except PermissionError as e:
+        print(repr(e))
+        return None
+    return tuple((rainbow_dict, ""))
+
 
 def read_hashed_file(filename: str) -> \
         "tuple[list[list[tuple[str, str, str]]], int, int, str]":
@@ -73,6 +109,26 @@ def read_hashed_file(filename: str) -> \
     return tuple([list_hash, num_col, num_row, ""])
 
 
-hashes, columns, rows, status = read_hashed_file("hashed.txt")
+def unhash_file(rainbow_table: "dict[str, int]",
+                hash_content: "list[list[tuple[str, str, str]]]") -> \
+                "list[list[tuple[int, int, int]]]":
+    """
+    Convert the hashes back to original pixel data
 
-print(len(hashes))
+    Parameters:
+    ----
+    rainbow_table <dict[str, int]>: Mapping of hashes to integers
+    hash_content <list[list[tuple[str, str, str]]]>: hashed data
+
+    Return:
+    ----
+    original_pixels <list[list[tuple[int, int, int]]]>:
+        * Multi-dimensional list of hashed pixel data
+            in rows x cols x 3 colour (RGB) integer values
+    """
+
+    pass
+
+
+test_dict = {"alpha": 1, "beta": 2, "charlie": 3}
+test_tuple = tuple(["alpha", "beta", "charlie"])

@@ -141,8 +141,19 @@ def unhash_file(rainbow_table: "dict[str, int]",
         * Multi-dimensional list of hashed pixel data
             in rows x cols x 3 colour (RGB) integer values
     """
-
-    pass
+    original_pixels = list()
+    for hashed_row in hash_content:
+        original_pixels_row = list()
+        for hashed_col in hashed_row:
+            original_pixels_col = list()
+            for hashed_pixel in hashed_col:
+                if rainbow_table.get(hashed_pixel) is None:
+                    print("Could not unhash the pixel")
+                    return None
+                original_pixels_col.append(rainbow_table.get(hashed_pixel))
+            original_pixels_row.append(tuple(original_pixels_col))
+        original_pixels.append(original_pixels_row)
+    return original_pixels
 
 
 def write_bytes_to_file(bytes_to_write: bytes, filename: str) -> str:
@@ -168,8 +179,14 @@ def write_bytes_to_file(bytes_to_write: bytes, filename: str) -> str:
     * At least one specific exception handling must be demonstrated
     * Simply catching a (Base)Exception will not earn full credit
     """
-
-    pass
+    try:
+        with open(filename, "wb") as file:
+            file.write(bytes_to_write)
+    except FileNotFoundError as e:
+        return repr(e)
+    except PermissionError as e:
+        return repr(e)
+    return ""
 
 
 def produce_image(pixel_data: "list[list[tuple[int, int, int]]]",
@@ -236,7 +253,7 @@ if __name__ == "__main__":
     raw_jpeg_bytes = produce_image(pixel_data, display_image=False)
 
     # You may change eXXXX to your student ID
-    status = write_bytes_to_file(raw_jpeg_bytes, "eXXX.jpg")
+    status = write_bytes_to_file(raw_jpeg_bytes, "e0565023.jpg")
 
     if status != "":
         print(status)
